@@ -1,0 +1,238 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us </title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/contact.css'%}">
+</head>
+
+<body>
+    <!-- Include your header from previous pages -->
+
+    <style>
+        .header {
+            background-color: #1a1a1a;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .header .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffd700;
+            text-decoration: none;
+        }
+
+        .header .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .header .nav-links a:hover {
+            color: #ffd700;
+        }
+
+        .header .action-button {
+            background-color: #ffd700;
+            color: #1a1a1a !important;
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .footer-contact-text p {
+            color: #adb5bd;
+            font-size: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+
+    <header class="header">
+        <a href="/" class="logo">AgroTransport</a>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/about">About</a>
+            <a href="/contact">Contact</a>
+            <a href="/login" class="action-button">Book Now</a>
+        </div>
+    </header>
+
+    <section class="contact-section">
+        <div class="contact-container">
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <h2>Contact Information</h2>
+                    <p style="margin: 20px 0;">Reach out to us through any of these channels</p>
+
+                    <div class="contact-card">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <h3>Our Location</h3>
+                            <p>Pimpalgaon Likha</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-card">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <h3>Phone Number</h3>
+                            <p>+91 9834460866</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-card">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <h3>Email Address</h3>
+                            <p>
+                                agrotransportsolutions@gmail.com
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="contact-card">
+                        <i class="fas fa-clock"></i>
+                        <div>
+                            <h3>Working Hours</h3>
+                            <p>AnyTime-AnyWhere</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-form">
+                    <h2>Send Us a Message</h2>
+                    <p style="margin: 20px 0;">Fill out the form below and we'll get back to you shortly</p>
+                    {% if messages %}
+                    {% for message in messages %}
+                    <div
+                        style="background: #ecfdf5; color: #065f46; border: 1px solid #10b981; padding: 15px; border-radius: 8px; margin-bottom: 25px; font-size: 14px; font-weight: 500;">
+                        <i class="fas fa-check-circle"></i> {{ message }}
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+
+                    <form method="POST" action="/contact">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" name="name" placeholder="Enter your full name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" name="email" placeholder="Enter your email address" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Subject</label>
+                            <input type="text" name="subject" placeholder="What is this regarding?" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Message</label>
+                            <textarea name="message" rows="5" placeholder="Write your message here..."
+                                required></textarea>
+                        </div>
+
+                        <button type="submit" class="submit-btn"
+                            style="background: #ffd700; color: #1a1a1a; font-weight: 600; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s; width: 100%; font-size: 16px;">
+                            <i class="fas fa-paper-plane"></i> Send Message
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+
+
+    <!-- Footer Section -->
+    <footer class="footer">
+        <div class="footer-top">
+            <div class="footer-container">
+                <div class="footer-grid">
+                    <div class="footer-widget">
+                        <div class="footer-logo">
+                            <img src="https://img.icons8.com/color/48/000000/truck--v1.png" alt="AgroTransport Logo">
+                            <h3>AgroTransport</h3>
+                        </div>
+                        <p>Your trusted partner in professional logistics and transportation services. Delivering
+                            excellence since 2010.</p>
+                        <div class="footer-social">
+                            <a href="#"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="#"><i class="fab fa-instagram"></i></a>
+                        </div>
+                    </div>
+
+                    <div class="footer-widget">
+                        <h4>Quick Links</h4>
+                        <ul class="footer-links">
+                            <li><a href="/">Home</a></li>
+                            <li><a href="about.html">About Us</a></li>
+                            <li><a href="services.html">Services</a></li>
+                            <li><a href="book.html">Book Now</a></li>
+                            <li><a href="contact.html">Contact</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-widget">
+                        <h4>Our Services</h4>
+                        <ul class="footer-links">
+                            <li><a href="#">Cargo Transport</a></li>
+                            <li><a href="#">Moving Services</a></li>
+                            <li><a href="#">Courier Services</a></li>
+                            <li><a href="#">Express Delivery</a></li>
+                            <li><a href="#">International Shipping</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-widget">
+                        <h4>Contact Info</h4>
+                        <div class="footer-contact-text">
+                            <p><i class="fas fa-map-marker-alt"></i>Pimpalgaon Likha</p>
+                            <p><i class="fas fa-phone"></i> +91 9834460866</p>
+                            <p><i class="fas fa-envelope"></i> agrotransportsolutions@gmail.com</p>
+                            <p><i class="fas fa-clock"></i> Mon-Fri: 9:00 AM - 5:00 PM</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="footer-container">
+                <p>&copy; 2024 AgroTransport. All rights reserved.</p>
+                <div class="footer-bottom-links">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms & Conditions</a>
+                    <a href="#">FAQ</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

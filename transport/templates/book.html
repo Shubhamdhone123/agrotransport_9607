@@ -1,0 +1,484 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agro Transport Booking</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/book.css' %}">
+    <style>
+
+        .services {
+            padding: 80px 0;
+            background: #f8f9fa;
+        }
+
+        .services-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .services-title {
+            text-align: center;
+            color: var(--secondary-color);
+            font-size: 32px;
+            margin-bottom: 50px;
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        .services-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: var(--primary-color);
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .service-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            border-color: var(--primary-color);
+        }
+
+        .service-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            transition: all 0.3s ease;
+        }
+
+        .service-icon i {
+            font-size: 32px;
+            color: var(--secondary-color);
+        }
+
+        .service-card:hover .service-icon {
+            transform: rotate(360deg);
+            background: var(--secondary-color);
+        }
+
+        .service-card:hover .service-icon i {
+            color: var(--primary-color);
+        }
+
+        .service-card h3 {
+            color: var(--secondary-color);
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+        .service-card p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .services {
+                padding: 60px 0;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .service-card {
+                padding: 25px;
+            }
+        }
+
+        .rates-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+        }
+
+        .rates-info h4 {
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+        }
+
+        .rates-info ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .rates-info li {
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        #calculationBreakdown {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <form action="savebook" method="post">
+    <header class="header">
+        <div class="top-bar">
+            <div class="nav-container">
+                <a href="#" class="logo">
+                    <img src="https://img.icons8.com/color/48/000000/truck--v1.png" alt="Logo">
+                    TRANSPORT PRO
+                </a>
+                <div class="contact-info">
+                    <span><i class="fas fa-map-marker-alt"></i> Pimpalgaon Likha-431511</span>
+                    <span><i class="fas fa-phone"></i> +91 9834460866 </span>
+                    <span><i class="fas fa-clock"></i> {{ current_time }}</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero-section">
+        <div class="booking-container">
+            <div class="booking-form">
+                <h2 class="form-title">Book Your Transport</h2>
+                    <div class="form-group">
+                        <label>Pickup Location</label>
+                        <input type="text" name="pickup" placeholder="Enter pickup location">
+                        <i class="fas fa-map-marker-alt" style="position: absolute; right: 35px; pointer-events: none;"></i>
+                    </div>
+                    <div class="form-group">
+                        <label>Delivery Location</label>
+                        <input type="text" name="delivery" placeholder="Enter delivery location">
+                        <i class="fas fa-map-marker" style="position: absolute; right: 35px; pointer-events: none;"></i>
+                    </div>
+                    <div class="form-group">
+                        <label>Goods Type</label>
+                        <select name="goodtype">
+                            <option value="">Select goods type</option>
+                            <option value="furniture">Furniture</option>
+                            <option value="electronics">Electronics</option>
+                            <option value="perishable">Perishable Goods</option>
+                            <option value="construction">Construction Materials</option>
+                            <option value="general">General Rental</option>
+                        </select>
+                        <i class="fas fa-box" style="position: absolute; right: 35px; pointer-events: none;"></i>
+                    </div>
+                    <div class="form-group">
+                        <div class="rates-info">
+                            <h4>Rate Card:</h4>
+                            <ul>
+                                <li>Furniture: ₹40/km</li>
+                                <li>Electronics: ₹50/km</li>
+                                <li>Perishable Goods: ₹60/km</li>
+                                <li>Construction Materials: ₹45/km</li>
+                                <li>General Rental: ₹25/km</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Vehicle Type</label>
+                        <select name="vehicletype">
+                            <option value="">Select vehicle type</option>
+                            <option value="pickup">Pickup Truck</option>
+                            <option value="van">Cargo Van</option>
+                            <option value="truck">Heavy Truck</option>
+                            <option value="refrigerated">Refrigerated Truck</option>
+                        </select>
+                        <i class="fas fa-truck" style="position: absolute; right: 30px; pointer-events: none;"></i>
+                    </div>
+                    <div class="form-group">
+                        <label>Pickup Date</label>
+                        <input type="date" name="date">
+                        <i class="fas fa-calendar" style="position: absolute; right: 20px; top:50px; pointer-events: none;"></i>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Distance (in KM)</label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="text" id="distanceDisplay" placeholder="Click 'Calculate Distance'" readonly>
+                            <button type="button" id="calculateDistanceBtn" class="book-btn" style="padding: 8px 12px;">
+                                Calculate Distance
+                            </button>
+                        </div>
+                        <input type="hidden" name="distance" id="distanceHidden">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Calculated Amount</label>
+                        <input type="text" id="calculatedAmount" readonly>
+                        <input type="hidden" name="amount" id="amountHidden">
+                    </div>
+
+                    <button type="submit" class="book-btn">BOOK NOW</button>
+                    {% csrf_token %}
+
+            </div>
+            <div class="promo-content">
+                <h1>AGRO GOODS TRANSPORT</h1>
+                <p>Professional logistics solutions for your business needs</p>
+                <p>Starting from low cost</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="services">
+        <div class="services-container">
+            <h2 class="services-title">Our Services</h2>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <h3>Local Transport</h3>
+                    <p>Efficient and reliable local transportation services for your goods within the city.</p>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <h3>Packaging</h3>
+                    <p>Professional packaging solutions to ensure your goods are safe during transit.</p>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-warehouse"></i>
+                    </div>
+                    <h3>Warehousing</h3>
+                    <p>Secure storage facilities with modern inventory management systems.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>About Us</h3>
+                <p>Your trusted partner in goods transportation, providing reliable logistics solutions.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="services.html">Services</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contact</h3>
+                <p><i class="fas fa-map-marker-alt"></i> 802/2, Mirpur, Dhaka</p>
+                <p><i class="fas fa-phone"></i> +1 800 345 678</p>
+            </div>
+            <div class="footer-section">
+                <h3>Follow Us</h3>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 AgroTransport. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <style>
+        .footer {
+            background: var(--secondary-color);
+            color: white;
+            padding: 30px 0 15px;
+            margin-top: 40px;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 0 20px;
+        }
+
+        .footer-section h3 {
+            color: var(--primary-color);
+            margin-bottom: 12px;
+            font-size: 16px;
+            position: relative;
+            padding-bottom: 8px;
+        }
+
+        .footer-section h3::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 40px;
+            height: 2px;
+            background: var(--primary-color);
+        }
+
+        .footer-section p {
+            line-height: 1.4;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 8px;
+        }
+
+        .footer-section ul li a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-size: 14px;
+        }
+
+        .footer-section ul li a:hover {
+            color: var(--primary-color);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 12px;
+        }
+
+        .social-links a {
+            color: white;
+            font-size: 18px;
+            transition: color 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 15px;
+            margin-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 13px;
+        }
+
+        @media (max-width: 768px) {
+            .footer {
+                padding: 25px 0 10px;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr 1fr;
+                text-align: left;
+                gap: 15px;
+            }
+
+            .footer-section h3::after {
+                left: 0;
+                transform: none;
+            }
+
+            .social-links {
+                justify-content: flex-start;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    <script>
+        (function () {
+            const btn = document.getElementById('calculateDistanceBtn');
+            if (!btn) return;
+
+            function getCsrfToken() {
+                const el = document.querySelector('input[name="csrfmiddlewaretoken"]');
+                return el ? el.value : '';
+            }
+
+            btn.addEventListener('click', async function () {
+                const pickup = document.querySelector('input[name="pickup"]').value.trim();
+                const delivery = document.querySelector('input[name="delivery"]').value.trim();
+                const goodtype = document.querySelector('select[name="goodtype"]').value;
+
+                if (!pickup || !delivery) {
+                    alert('Please enter both Pickup and Delivery locations.');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/calculate_distance', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCsrfToken(),
+                        },
+                        body: JSON.stringify({ pickup, delivery, goodtype })
+                    });
+
+                    const data = await response.json();
+                    if (!response.ok || !data.success) {
+                        alert(data.error || 'Failed to calculate distance. Please try again.');
+                        return;
+                    }
+
+                    const distanceKm = data.distance_km;
+                    const amount = data.amount;
+
+                    document.getElementById('distanceDisplay').value = distanceKm + ' km';
+                    document.getElementById('distanceHidden').value = distanceKm;
+
+                    document.getElementById('calculatedAmount').value = '₹' + amount;
+                    document.getElementById('amountHidden').value = amount;
+                } catch (err) {
+                    console.error(err);
+                    alert('Something went wrong while calculating distance.');
+                }
+            });
+        })();
+    </script>
+
+    </form>
+</body>
+</html>

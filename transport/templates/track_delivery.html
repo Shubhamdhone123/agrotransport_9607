@@ -1,0 +1,1073 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Delivery #{{ booking.id }} - AgroTransport</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- Leaflet.js FREE map library (OpenStreetMap) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        :root {
+            --primary: #ffd700;
+            --primary-dark: #e6c200;
+            --secondary: #1a1a1a;
+            --accent: #3b82f6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --card-border: #eeeeee;
+            --text: #333333;
+            --text-muted: #7f8c8d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* NAV */
+        .nav {
+            background: var(--secondary);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-bottom: none;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-logo i {
+            font-size: 22px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .nav-links a.btn-primary {
+            background: var(--primary);
+            color: var(--secondary);
+            font-weight: 600;
+        }
+
+        .nav-links a.btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        /* HERO BREADCRUMB */
+        .breadcrumb {
+            padding: 20px 24px;
+            background: #ffffff;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .breadcrumb p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .breadcrumb p a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .breadcrumb h1 {
+            font-size: 26px;
+            font-weight: 700;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .booking-id-tag {
+            font-size: 14px;
+            font-weight: 600;
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        /* MAIN LAYOUT */
+        .main {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 28px 20px;
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* STATUS TRACKER */
+        .status-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+        }
+
+        .status-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 12px;
+        }
+
+        .status-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            position: relative;
+        }
+
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 17px;
+            top: 36px;
+            width: 2px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .step.done::after {
+            background: var(--success);
+        }
+
+        .step.active::after {
+            background: linear-gradient(to bottom, var(--primary), rgba(255, 255, 255, 0.1));
+        }
+
+        .step-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            border: 2px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+            color: var(--text-muted);
+            transition: all 0.3s;
+        }
+
+        .step.done .step-icon {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        .step.active .step-icon {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: var(--secondary);
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+            animation: pulse-icon 2s infinite;
+        }
+
+        @keyframes pulse-icon {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 0 30px rgba(245, 158, 11, 0.7);
+            }
+        }
+
+        .step-body {
+            padding-bottom: 28px;
+        }
+
+        .step-body h4 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .step.done .step-body h4 {
+            color: var(--success);
+        }
+
+        .step.active .step-body h4 {
+            color: var(--primary);
+        }
+
+        .step.pending .step-body h4 {
+            color: var(--text-muted);
+        }
+
+        .step-body p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* INFO CARD */
+        .info-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+        }
+
+        .info-card h3 {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 14px;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-row label {
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-row label i {
+            width: 16px;
+        }
+
+        .info-row value {
+            font-weight: 500;
+            text-align: right;
+            max-width: 60%;
+        }
+
+        /* DRIVER CARD */
+        .driver-card {
+            background: #ffffff;
+            border: 1px solid #eeeeee;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+            border: 1px solid #eeeeee;
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .driver-card h3 {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .driver-info {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .driver-avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), #6366f1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .driver-name {
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .driver-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .driver-contact a {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .driver-contact a:hover {
+            background: rgba(59, 130, 246, 0.25);
+            border-color: var(--accent);
+        }
+
+        .no-driver {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-style: italic;
+            text-align: center;
+            padding: 16px 0;
+        }
+
+        .no-driver i {
+            display: block;
+            font-size: 32px;
+            margin-bottom: 8px;
+            opacity: 0.4;
+        }
+
+        /* MAP SECTION */
+        .map-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .map-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+        }
+
+        .map-header {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .map-title {
+            font-size: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .live-badge {
+            font-size: 11px;
+            font-weight: 600;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 3px 10px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .live-dot {
+            width: 7px;
+            height: 7px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .map-refresh {
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: var(--text-muted);
+            transition: color 0.2s;
+        }
+
+        .map-refresh:hover {
+            color: var(--primary);
+        }
+
+        #map {
+            height: 420px;
+            width: 100%;
+        }
+
+        .map-footer {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-muted);
+            background: #fafbfc;
+            border-top: 1px solid #eeeeee;
+        }
+
+        /* STATUS BADGES */
+        .status-badge-main {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .status-confirmed {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .status-in_transit {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--primary);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .status-delivered {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-cancelled {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .route-display {
+            background: #ffffff;
+            border: 1px solid #eeeeee;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(245, 158, 11, 0.15);
+            border-radius: 16px;
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .route-point {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .route-point .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .dot-pickup {
+            background: var(--success);
+        }
+
+        .dot-delivery {
+            background: var(--danger);
+        }
+
+        .route-arrow {
+            color: var(--text-muted);
+            font-size: 18px;
+            flex: 1;
+            text-align: center;
+        }
+
+        /* NOT IN TRANSIT MSG */
+        .not-tracking-msg {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 300px;
+            gap: 16px;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .not-tracking-msg i {
+            font-size: 48px;
+            opacity: 0.3;
+        }
+
+        .not-tracking-msg h3 {
+            font-size: 18px;
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .not-tracking-msg p {
+            font-size: 14px;
+            max-width: 280px;
+            line-height: 1.6;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .route-display {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .route-arrow {
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <nav class="nav">
+        <a href="/" class="nav-logo">
+            <i class="fas fa-truck-moving"></i>
+            AgroTransport
+        </a>
+        <div class="nav-links">
+            <a href="/dashboard">← Dashboard</a>
+            <a href="/logout" class="btn-primary">Logout</a>
+        </div>
+    </nav>
+
+    <!-- BREADCRUMB -->
+    <div class="breadcrumb">
+        <p>
+            <a href="/dashboard">Dashboard</a>
+            &nbsp;/&nbsp; Track Delivery
+        </p>
+        <h1>
+            <i class="fas fa-satellite-dish" style="color: var(--primary); font-size: 22px;"></i>
+            Live Delivery Tracking
+            <span class="booking-id-tag">#{{ booking.id }}</span>
+        </h1>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+
+            <!-- Delivery Status Steps -->
+            <div class="status-card">
+                <h3><i class="fas fa-list-check"></i> &nbsp;Delivery Status</h3>
+                <div class="status-steps">
+                    <!-- Step 1: Confirmed -->
+                    <div
+                        class="step {% if booking.booking_status == 'confirmed' %}active{% elif booking.booking_status in 'in_transit,delivered' %}done{% else %}pending{% endif %}">
+                        <div class="step-icon">
+                            {% if booking.booking_status != 'confirmed' %}
+                            <i class="fas fa-check"></i>
+                            {% else %}
+                            <i class="fas fa-clipboard-check"></i>
+                            {% endif %}
+                        </div>
+                        <div class="step-body">
+                            <h4>Booking Confirmed</h4>
+                            <p>Your booking is confirmed &amp; scheduled.</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: In Transit -->
+                    <div
+                        class="step {% if booking.booking_status == 'in_transit' %}active{% elif booking.booking_status == 'delivered' %}done{% else %}pending{% endif %}">
+                        <div class="step-icon">
+                            {% if booking.booking_status == 'delivered' %}
+                            <i class="fas fa-check"></i>
+                            {% else %}
+                            <i class="fas fa-truck-moving"></i>
+                            {% endif %}
+                        </div>
+                        <div class="step-body">
+                            <h4>In Transit</h4>
+                            <p>Goods are on the way to delivery location.</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Delivered -->
+                    <div class="step {% if booking.booking_status == 'delivered' %}done{% else %}pending{% endif %}">
+                        <div class="step-icon">
+                            {% if booking.booking_status == 'delivered' %}
+                            <i class="fas fa-check"></i>
+                            {% else %}
+                            <i class="fas fa-flag-checkered"></i>
+                            {% endif %}
+                        </div>
+                        <div class="step-body">
+                            <h4>Delivered</h4>
+                            <p>Goods successfully delivered.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Booking Details -->
+            <div class="info-card">
+                <h3><i class="fas fa-info-circle"></i> &nbsp;Booking Details</h3>
+                <div class="info-row">
+                    <label><i class="fas fa-box"></i> Goods Type</label>
+                    <value>{{ booking.goodtype|title }}</value>
+                </div>
+                <div class="info-row">
+                    <label><i class="fas fa-truck"></i> Vehicle</label>
+                    <value>{{ booking.vehicletype|title }}</value>
+                </div>
+                <div class="info-row">
+                    <label><i class="fas fa-calendar"></i> Pickup Date</label>
+                    <value>{{ booking.pickupdate }}</value>
+                </div>
+                <div class="info-row">
+                    <label><i class="fas fa-road"></i> Distance</label>
+                    <value>{{ booking.distance }} km</value>
+                </div>
+                <div class="info-row">
+                    <label><i class="fas fa-rupee-sign"></i> Amount</label>
+                    <value>₹{{ booking.amount }}</value>
+                </div>
+                <div class="info-row">
+                    <label><i class="fas fa-wallet"></i> Payment</label>
+                    <value>
+                        {% if booking.payment_status == 'paid' %}
+                        <span style="color: #10b981; font-weight:600;">✓ Paid</span>
+                        {% else %}
+                        <span style="color: #f59e0b; font-weight:600;">⏳ Pending</span>
+                        {% endif %}
+                    </value>
+                </div>
+                {% if booking.estimated_delivery %}
+                <div class="info-row">
+                    <label><i class="fas fa-clock"></i> Est. Delivery</label>
+                    <value>{{ booking.estimated_delivery }}</value>
+                </div>
+                {% endif %}
+                {% if booking.special_notes %}
+                <div class="info-row" style="flex-direction: column; align-items: flex-start; gap: 6px;">
+                    <label><i class="fas fa-sticky-note"></i> Notes</label>
+                    <value style="max-width:100%; font-size:13px; color: var(--text-muted);">{{ booking.special_notes }}
+                    </value>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Driver Info -->
+            <div class="driver-card">
+                <h3><i class="fas fa-id-card"></i> &nbsp;Driver Information</h3>
+                {% if booking.driver_name %}
+                <div class="driver-info">
+                    <div class="driver-avatar"><i class="fas fa-user-tie"></i></div>
+                    <div>
+                        <div class="driver-name">{{ booking.driver_name }}</div>
+                        <div class="driver-sub">Assigned Driver</div>
+                    </div>
+                </div>
+                {% if booking.driver_phone %}
+                <div class="driver-contact">
+                    <a href="tel:{{ booking.driver_phone }}">
+                        <i class="fas fa-phone"></i> Call Driver — {{ booking.driver_phone }}
+                    </a>
+                </div>
+                {% endif %}
+                {% else %}
+                <div class="no-driver">
+                    <i class="fas fa-user-clock"></i>
+                    Driver will be assigned when delivery starts
+                </div>
+                {% endif %}
+            </div>
+
+        </div>
+
+        <!-- MAP SECTION -->
+        <div class="map-section">
+
+            <!-- Route Summary -->
+            <div class="route-display">
+                <div class="route-point">
+                    <div class="dot dot-pickup"></div>
+                    <div>
+                        <div style="font-size:11px; color: var(--text-muted); margin-bottom:2px;">PICKUP</div>
+                        <div>{{ booking.pickup }}</div>
+                    </div>
+                </div>
+                <div class="route-arrow">
+                    <i class="fas fa-long-arrow-alt-right"></i>
+                </div>
+                <div class="route-point">
+                    <div class="dot dot-delivery"></div>
+                    <div>
+                        <div style="font-size:11px; color: var(--text-muted); margin-bottom:2px;">DELIVERY</div>
+                        <div>{{ booking.delivery }}</div>
+                    </div>
+                </div>
+                <div style="margin-left:auto; padding-left:16px;">
+                    <span id="statusBadge" class="status-badge-main status-{{ booking.booking_status }}">
+                        {% if booking.booking_status == 'confirmed' %}<i class="fas fa-clipboard-check"></i> Confirmed
+                        {% elif booking.booking_status == 'in_transit' %}<i class="fas fa-truck-moving"></i> In Transit
+                        {% elif booking.booking_status == 'delivered' %}<i class="fas fa-check-circle"></i> Delivered
+                        {% elif booking.booking_status == 'cancelled' %}<i class="fas fa-times-circle"></i> Cancelled
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Map Card -->
+            <div class="map-card">
+                <div class="map-header">
+                    <div class="map-title">
+                        <i class="fas fa-map-location-dot" style="color: var(--primary);"></i>
+                        Live Map Tracking
+                        {% if booking.booking_status == 'in_transit' %}
+                        <span class="live-badge">
+                            <span class="live-dot"></span>LIVE
+                        </span>
+                        {% endif %}
+                    </div>
+                    <button class="map-refresh" onclick="fetchTrackingData()" title="Refresh location">
+                        <i class="fas fa-rotate-right"></i> Refresh
+                    </button>
+                </div>
+
+                {% if booking.booking_status == 'in_transit' %}
+                <div id="map"></div>
+                <div class="map-footer">
+                    <span id="lastUpdate">
+                        {% if booking.last_location_update %}
+                        Last updated: {{ booking.last_location_update|date:"d M Y, H:i" }}
+                        {% else %}
+                        Waiting for first location update...
+                        {% endif %}
+                    </span>
+                    <span>📡 Powered by OpenStreetMap (Free)</span>
+                </div>
+                {% else %}
+                <div class="not-tracking-msg">
+                    {% if booking.booking_status == 'confirmed' %}
+                    <i class="fas fa-truck"></i>
+                    <h3>Delivery Not Started Yet</h3>
+                    <p>Live tracking will be available once your goods are picked up and the driver starts the journey.
+                    </p>
+                    <p style="margin-top:8px; font-size:13px; color: var(--primary);">
+                        <i class="fas fa-bell"></i> You will be notified when delivery starts.
+                    </p>
+                    {% elif booking.booking_status == 'delivered' %}
+                    <i class="fas fa-box-open" style="color: var(--success);"></i>
+                    <h3 style="color: var(--success);">Delivery Completed</h3>
+                    <p>Your shipment has successfully reached its destination and is marked as delivered!</p>
+                    {% elif booking.booking_status == 'cancelled' %}
+                    <i class="fas fa-times-circle" style="color: var(--danger);"></i>
+                    <h3>Booking Cancelled</h3>
+                    <p>This booking has been cancelled. Please contact support for assistance.</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+
+            {% if booking.last_location_update and booking.booking_status == 'in_transit' %}
+            <div class="info-card" style="background: rgba(245,158,11,0.05); border-color: rgba(245,158,11,0.15);">
+                <h3><i class="fas fa-crosshairs"></i> &nbsp;Current GPS Location</h3>
+                <div class="info-row">
+                    <label><i class="fas fa-location-dot"></i> Latitude</label>
+                    <value id="coordLat">{{ booking.driver_lat }}</value>
+                </div>
+                <div class="info-row">
+                    <label><i class="fas fa-location-crosshairs"></i> Longitude</label>
+                    <value id="coordLng">{{ booking.driver_lng }}</value>
+                </div>
+                <div class="info-row">
+                    <label><i class="fas fa-clock"></i> Last Updated</label>
+                    <value id="coordTime">{{ booking.last_location_update|date:"d M Y, H:i" }}</value>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <script>
+        const BOOKING_ID = {{ booking.id }};
+        const BOOKING_STATUS = "{{ booking.booking_status }}";
+        const API_URL = `/api/tracking/${BOOKING_ID}/`;
+
+        let map = null;
+        let driverMarker = null;
+        let pickupMarker = null;
+        let deliveryMarker = null;
+
+        // Custom truck icon for driver
+        const truckIcon = L.divIcon({
+            html: `<div style="
+            background: #f59e0b;
+            border: 3px solid #1e293b;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 12px rgba(245,158,11,0.6);
+            animation: pulse-map 2s infinite;
+        ">🚛</div>
+        <style>
+            @keyframes pulse-map {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.1); }
+            }
+        </style>`,
+            className: '',
+            iconSize: [44, 44],
+            iconAnchor: [22, 22],
+        });
+
+        const pickupIcon = L.divIcon({
+            html: `<div style="
+            background: #10b981;
+            border: 3px solid white;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            box-shadow: 0 2px 8px rgba(16,185,129,0.5);
+        ">📦</div>`,
+            className: '',
+            iconSize: [36, 36],
+            iconAnchor: [18, 18],
+        });
+
+        const deliveryIcon = L.divIcon({
+            html: `<div style="
+            background: #ef4444;
+            border: 3px solid white;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            box-shadow: 0 2px 8px rgba(239,68,68,0.5);
+        ">🏁</div>`,
+            className: '',
+            iconSize: [36, 36],
+            iconAnchor: [18, 18],
+        });
+
+        function initMap(lat, lng) {
+            if (map) return; // already initialized
+
+            map = L.map('map', {
+                center: [lat, lng],
+                zoom: 13,
+                zoomControl: true,
+            });
+
+            // OpenStreetMap tile layer (100% FREE)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                maxZoom: 19,
+            }).addTo(map);
+
+            // Driver marker
+            driverMarker = L.marker([lat, lng], { icon: truckIcon })
+                .addTo(map)
+                .bindPopup(`
+                <div style="font-family: 'Poppins', sans-serif; min-width:160px;">
+                    <strong style="color:#f59e0b;">🚛 Driver Location</strong><br>
+                    <span style="font-size:12px; color:#666;">{{ booking.driver_name|default:"Driver" }}</span><br>
+                    <span style="font-size:11px; color:#999;">Last updated:</span><br>
+                    <span id="popup-time" style="font-size:11px;">Loading...</span>
+                </div>
+            `)
+                .openPopup();
+        }
+
+        function updateMarker(lat, lng, lastUpdate) {
+            if (!map) {
+                initMap(lat, lng);
+                return;
+            }
+
+            // Smooth pan to new location
+            map.setView([lat, lng], map.getZoom(), { animate: true });
+
+            if (driverMarker) {
+                driverMarker.setLatLng([lat, lng]);
+            }
+
+            // Update coordinate display
+            const latEl = document.getElementById('coordLat');
+            const lngEl = document.getElementById('coordLng');
+            const timeEl = document.getElementById('coordTime');
+            const lastUpEl = document.getElementById('lastUpdate');
+
+            if (latEl) latEl.textContent = lat.toFixed(6);
+            if (lngEl) lngEl.textContent = lng.toFixed(6);
+            if (timeEl) timeEl.textContent = lastUpdate;
+            if (lastUpEl) lastUpEl.textContent = 'Last updated: ' + lastUpdate;
+        }
+
+        async function fetchTrackingData() {
+            try {
+                const res = await fetch(API_URL);
+                const data = await res.json();
+
+                if (data.driver_lat && data.driver_lng) {
+                    updateMarker(data.driver_lat, data.driver_lng, data.last_update || 'Just now');
+                }
+
+                // Update driver phone link if available
+                if (data.driver_phone && !document.querySelector('.driver-contact a')) {
+                    const dc = document.querySelector('.driver-contact');
+                    if (dc) {
+                        dc.innerHTML = `<a href="tel:${data.driver_phone}"><i class="fas fa-phone"></i> Call Driver — ${data.driver_phone}</a>`;
+                    }
+                }
+            } catch (err) {
+                console.error('Tracking fetch error:', err);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const latStr = "{% if booking.driver_lat %}{{ booking.driver_lat }}{% endif %}";
+            const lngStr = "{% if booking.driver_lng %}{{ booking.driver_lng }}{% endif %}";
+
+            const driverLat = latStr ? parseFloat(latStr) : null;
+            const driverLng = lngStr ? parseFloat(lngStr) : null;
+
+            if (BOOKING_STATUS === 'in_transit' && driverLat && driverLng) {
+                initMap(driverLat, driverLng);
+            } else if (BOOKING_STATUS === 'in_transit') {
+                // No coords yet — show India center
+                if (document.getElementById('map')) {
+                    initMap(20.5937, 78.9629);
+                    map.setZoom(5);
+                }
+            }
+
+            // Auto-refresh every 30 seconds when in transit
+            if (BOOKING_STATUS === 'in_transit') {
+                setInterval(fetchTrackingData, 30000);
+                fetchTrackingData(); // first fetch
+            }
+        });
+    </script>
+
+</body>
+
+</html>

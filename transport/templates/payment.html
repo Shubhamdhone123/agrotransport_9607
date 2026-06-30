@@ -1,0 +1,71 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Payment Gateway</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{% static 'css/payment.css'%}">
+    <script src="{% static 'js/payment.js'%}"></script>
+</head>
+<body onload="startTimer()">
+<h2>Amount to be Paid: ₹{{ amount }}</h2>
+    <div class="payment-buttons">
+        <form method="post" class="payment-button">
+            {% csrf_token %}
+            <button type="submit" name="payment_mode" value="google_pay" style="background: none; border: none; outline: none; cursor: pointer;">
+                <img src="{% static 'images/googlepay.png' %}" alt="Google Pay">
+            </button>
+        </form>
+        <form method="post" class="payment-button">
+            {% csrf_token %}
+            <button type="submit" name="payment_mode" value="phonepe" style="background: none; border: none; outline: none; cursor: pointer;">
+                <img src="{% static 'images/phonepay.png' %}" alt="PhonePe">
+            </button>
+        </form>
+        <form method="post" class="payment-button">
+            {% csrf_token %}
+            <button type="submit" name="payment_mode" value="paytm" style="background: none; border: none; outline: none; cursor: pointer;">
+                <img src="{% static 'images/paytm1.png' %}" alt="Paytm">
+            </button>
+        </form>
+    </div>
+
+    {% if qr_code %}
+        <h2>Scan the QR Code</h2>
+        <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code">
+        <p id="timer">Time Remaining: 2:00</p>
+    {% endif %}
+
+    <div class="rules">
+        <h2>Payment Rules</h2>
+        <ul>
+            <li>Ensure the UPI ID displayed on your app matches our registered UPI ID.</li>
+            <li>Do not share your UPI PIN with anyone.</li>
+            <li>Payments are non-refundable. Please double-check the amount before proceeding.</li>
+            <li>If the QR code expires, reload the page to generate a new one.</li>
+            <li>Contact support if you encounter any issues with the payment.</li>
+        </ul>
+    </div>
+
+    <div class="background">
+        <ul class="circles">
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ul>
+    </div>
+
+</body>
+</html>

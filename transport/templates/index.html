@@ -1,0 +1,132 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agro Transport Solutions</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link rel="stylesheet" href="{% static 'css/index.css'%}">
+</head>
+<body>
+
+    <header class="header">
+        <nav class="navbar">
+            <a href="#" class="logo">
+                <img src="https://img.icons8.com/color/48/000000/truck--v1.png" alt="Logo">
+                <div class="logo-text">Trans<span>Port</span></div>
+            </a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/" target="_blank">Services</a>
+                <a href="/about" target="_blank">About</a>
+                <a href="/contact" target="_blank">Contact</a>
+                <form action="/login" method="get">
+                <button class="book-btn" type="submit">Book Now</button>
+            </form>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content" data-aos="fade-up">
+            <h1>Agro Transport Solutions</h1>
+            <p>Your trusted partner for efficient and secure transportation services. We deliver excellence with every journey.</p>
+            <form action="/register">
+            <button class="cta-btn">Get Started</button>
+        </form>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="services">
+        <div class="section-title" data-aos="fade-up">
+            <h2>Our Services</h2>
+        </div>
+        <div class="service-cards">
+            <div class="service-card" data-aos="fade-up" data-aos-delay="100">
+                <img src="{% static 'images/truc1.png' %}" alt="Local Transport">
+                <h3>Local Transport</h3>
+                <p>Dedicated transport services for crops, grains, fruits, and vegetables directly from farms to markets or warehouses.</p>
+                <button class="book-btn">Book Now</button>
+            </div>
+
+            <div class="service-card" data-aos="fade-up" data-aos-delay="200">
+                <img src="{% static 'images/fertilizer.png' %}" alt="International Shipping">
+                <h3>Fertilizer and Seed Delivery</h3>
+                <p>Timely delivery of seeds, fertilizers, and other essential farming supplies to farmers.</p>
+                <button class="book-btn">Book Now</button>
+            </div>
+
+            <div class="service-card" data-aos="fade-up" data-aos-delay="300">
+                <img src="{% static 'images/furniture.png' %}" alt="Express Delivery">
+                <h3>Furniture Transport</h3>
+                <p>Secure and careful transportation of furniture for homes, offices, and businesses. Door-to-door delivery services</p>
+                <button class="book-btn">Book Now</button>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer (from contact page) -->
+    <footer class="footer">
+        <div class="footer-top">
+            <div class="footer-container">
+                <div class="footer-grid">
+                    <div class="footer-widget">
+                        <div class="footer-logo">
+                            <img src="https://img.icons8.com/color/48/000000/truck--v1.png" alt="Logo">
+                            <h3>AgroTransport</h3>
+                        </div>
+                        <p>Your trusted partner in professional logistics and transportation services. Delivering excellence since 2010.</p>
+
+                    </div>
+
+                    <div class="footer-widget">
+                        <h4>Quick Links</h4>
+                        <ul class="footer-links">
+                            <li><a href="/">Home</a></li>
+                            <li><a href="/services">Services</a></li>
+                            <li><a href="/about">About Us</a></li>
+                            <li><a href="/contact">Contact</a></li>
+                        </ul>
+                    </div>
+
+                   <div class="footer-widget">
+                        <h4>Our Services</h4>
+                        <ul class="footer-links">
+                            <li><a href="/book">Local Transport</a></li>
+                            <li><a href="/book">Fertilizer and Seed Delivery</a></li>
+                            <li><a href="/book">Furniture Transport</a></li>
+                            <li><a href="book">General Transport</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-widget">
+                        <h4>Contact Info</h4>
+                        <div class="contact-info">
+                            <p><i class="fas fa-map-marker-alt"></i> Pimpalgaon Likha</p>
+                            <p><i class="fas fa-phone"></i> +91 9834460866</p>
+                            <p><i class="fas fa-envelope"></i> agrotransportsolutions@gmail.com</p>
+                            <p><i class="fas fa-clock"></i> Any Time : Any Where </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="footer-container">
+                <p>&copy; 2024 AgroTransport. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script src="{% static 'js/index.js'%}"></script>
+
+</body>
+</html>

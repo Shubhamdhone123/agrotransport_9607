@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Driver Tracking — Booking #{{ booking.id }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        :root {
+            --primary-color: #ffd700;
+            --secondary-color: #1a1a1a;
+            --accent-color: #ff4d4d;
+            --success-color: #28a745;
+            --text-main: #333333;
+            --text-muted: #7f8c8d;
+        }
+
+        body {
+            background: #f8f9fa;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 20px 16px 40px;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--secondary-color);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo i {
+            color: var(--primary-color);
+        }
+
+        .booking-card,
+        .status-box,
+        .counter-box {
+            background: #ffffff;
+            border: 1px solid #eeeeee;
+            border-radius: 15px;
+            padding: 25px;
+            width: 100%;
+            max-width: 420px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .booking-card h2 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--secondary-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+        }
+
+        .route {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .route-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .dot-green {
+            background: var(--success-color);
+        }
+
+        .dot-red {
+            background: var(--accent-color);
+        }
+
+        .route-arrow {
+            color: var(--text-muted);
+            font-size: 20px;
+            margin-left: 5px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-row span:first-child {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .info-row span:last-child {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        /* STATUS BOX */
+        .status-box {
+            text-align: center;
+        }
+
+        .status-icon {
+            font-size: 60px;
+            margin-bottom: 16px;
+            line-height: 1;
+        }
+
+        .status-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--secondary-color);
+            margin-bottom: 8px;
+        }
+
+        .status-sub {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* GPS COORDS DISPLAY */
+        .gps-display {
+            background: #fafbfc;
+            border: 1px solid #eeeeee;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 14px;
+            margin-top: 18px;
+            text-align: left;
+        }
+
+        .gps-display .label {
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .gps-display .value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--secondary-color);
+            font-family: monospace;
+        }
+
+        /* ACCURACY */
+        .accuracy-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 12px;
+            font-weight: 500;
+        }
+
+        .accuracy-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .acc-good {
+            background: var(--success-color);
+        }
+
+        .acc-medium {
+            background: #f59e0b;
+        }
+
+        .acc-poor {
+            background: var(--accent-color);
+        }
+
+        /* BIG BUTTON */
+        .start-btn {
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+            border-radius: 15px;
+            border: none;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .start-btn.idle {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .start-btn.idle:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .start-btn.running {
+            background: var(--secondary-color);
+            color: var(--primary-color);
+        }
+
+        .start-btn.running:hover {
+            transform: translateY(-2px);
+        }
+
+        .start-btn:active {
+            transform: translateY(0);
+        }
+
+        .start-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* PULSE RING */
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(0.8);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1.6);
+                opacity: 0;
+            }
+        }
+
+        .pulse-wrapper {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pulse-ring {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(255, 215, 0, 0.4);
+            /* primary color pulse */
+            animation: pulse-ring 1.2s ease-out infinite;
+        }
+
+        /* COUNTER */
+        .counter-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            padding: 18px 24px;
+        }
+
+        .counter-box .label {
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .counter-box .val {
+            font-weight: 700;
+            color: var(--secondary-color);
+            font-size: 18px;
+        }
+
+        /* INFO NOTE */
+        .info-note {
+            font-size: 13px;
+            color: var(--text-muted);
+            text-align: center;
+            max-width: 380px;
+            line-height: 1.6;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        /* DELIVERED button */
+        .delivered-btn {
+            width: 100%;
+            max-width: 420px;
+            padding: 18px;
+            border-radius: 15px;
+            border: 2px solid var(--success-color);
+            background: white;
+            color: var(--success-color);
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .delivered-btn.show {
+            display: flex;
+        }
+
+        .delivered-btn:hover {
+            background: rgba(40, 167, 69, 0.1);
+        }
+
+        /* ERROR BOX */
+        .error-box {
+            background: #fff3f3;
+            border: 1px solid #ffcdd2;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 14px;
+            color: var(--accent-color);
+            text-align: center;
+            font-weight: 500;
+            width: 100%;
+            max-width: 420px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Logo -->
+    <div class="logo">🚛 AgroTransport — Driver App</div>
+
+    <!-- Booking Info -->
+    <div class="booking-card">
+        <h2>📦 Your Assignment</h2>
+        <div class="route">
+            <span class="route-dot dot-green"></span>
+            {{ booking.pickup }}
+        </div>
+        <div style="color:#94a3b8; font-size:20px; margin: 4px 0 4px 4px; line-height:1;">↓</div>
+        <div class="route">
+            <span class="route-dot dot-red"></span>
+            {{ booking.delivery }}
+        </div>
+        <div style="margin-top:14px;">
+            <div class="info-row">
+                <span>Booking ID</span><span>#{{ booking.id }}</span>
+            </div>
+            <div class="info-row">
+                <span>Goods Type</span><span>{{ booking.goodtype|title }}</span>
+            </div>
+            <div class="info-row">
+                <span>Vehicle</span><span>{{ booking.vehicletype|title }}</span>
+            </div>
+            <div class="info-row">
+                <span>Pickup Date</span><span>{{ booking.pickupdate }}</span>
+            </div>
+            <div class="info-row">
+                <span>Customer</span><span>{{ booking.user.name }}</span>
+            </div>
+            {% if booking.user.number %}
+            <div class="info-row">
+                <span>Customer Phone</span>
+                <span><a href="tel:{{ booking.user.number }}" style="color:#60a5fa;">📞 {{ booking.user.number
+                        }}</a></span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Status Box -->
+    <div class="status-box" id="statusBox">
+        <div class="status-icon" id="statusIcon">📍</div>
+        <div class="status-title" id="statusTitle">Ready to Start</div>
+        <div class="status-sub" id="statusSub">
+            Press the green button below to start sharing your location.<br>
+            Customer will see your exact position on the map.
+        </div>
+        <div class="gps-display hidden" id="gpsDisplay">
+            <div class="label">Current GPS Coordinates</div>
+            <div class="value" id="gpsCoords">—</div>
+            <div class="accuracy-bar">
+                <span class="accuracy-dot" id="accDot"></span>
+                <span id="accText">Accuracy: —</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Counter -->
+    <div class="counter-box hidden" id="counterBox">
+        <div>
+            <div class="label">Location Updates Sent</div>
+            <div class="val" id="updateCount">0</div>
+        </div>
+        <div style="text-align:right;">
+            <div class="label">Last Sent</div>
+            <div class="val" id="lastSentTime">—</div>
+        </div>
+    </div>
+
+    <!-- Error box -->
+    <div class="error-box" id="errorBox"></div>
+
+    <!-- START / STOP button -->
+    <button class="start-btn idle" id="mainBtn" onclick="toggleTracking()">
+        <div class="pulse-wrapper" id="pulseWrapper">
+            <span id="btnIcon">▶</span>
+        </div>
+        <span id="btnLabel">Start Sharing Location</span>
+    </button>
+
+    <!-- Mark as Delivered -->
+    <button class="delivered-btn" id="deliveredBtn" onclick="markDelivered()">
+        ✅ Mark as Delivered
+    </button>
+
+    <p class="info-note">
+        🔒 Only you and your assigned customer can see this.<br>
+        Keep this page open while driving. GPS updates every 20 seconds.
+    </p>
+
+    <script>
+        const BOOKING_ID = {{ booking.id }};
+        const SHARE_KEY = "{{ share_key }}";
+        const GPS_ENDPOINT = `/driver/${BOOKING_ID}/${SHARE_KEY}/gps/`;
+        const UPDATE_INTERVAL = 20000; // 20 seconds
+
+        let isTracking = false;
+        let watchId = null;
+        let sendInterval = null;
+        let updateCount = 0;
+        let currentLat = null;
+        let currentLng = null;
+
+        function getCsrfToken() {
+            // Get Django CSRF token from cookie
+            const name = 'csrftoken';
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return '';
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('errorBox');
+            el.textContent = '⚠️ ' + msg;
+            el.style.display = 'block';
+            setTimeout(() => { el.style.display = 'none'; }, 6000);
+        }
+
+        function formatTime(date) {
+            return date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+
+        function getAccuracyInfo(acc) {
+            if (acc <= 20) return { cls: 'acc-good', text: `Excellent (±${Math.round(acc)}m)` };
+            if (acc <= 60) return { cls: 'acc-medium', text: `Good (±${Math.round(acc)}m)` };
+            return { cls: 'acc-poor', text: `Low (±${Math.round(acc)}m) — move to open area` };
+        }
+
+        function updateGpsDisplay(lat, lng, accuracy) {
+            document.getElementById('gpsDisplay').classList.remove('hidden');
+            document.getElementById('gpsCoords').textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            const accInfo = getAccuracyInfo(accuracy);
+            const dot = document.getElementById('accDot');
+            dot.className = 'accuracy-dot ' + accInfo.cls;
+            document.getElementById('accText').textContent = 'Accuracy: ' + accInfo.text;
+        }
+
+        async function sendLocation() {
+            if (currentLat === null || currentLng === null) return;
+
+            // Get CSRF token - first try cookie, then fetch from page
+            let csrf = getCsrfToken();
+
+            try {
+                const resp = await fetch(GPS_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrf,
+                    },
+                    body: JSON.stringify({ lat: currentLat, lng: currentLng }),
+                });
+
+                const data = await resp.json();
+                if (data.success) {
+                    updateCount++;
+                    document.getElementById('updateCount').textContent = updateCount;
+                    document.getElementById('lastSentTime').textContent = formatTime(new Date());
+                } else {
+                    showError(data.error || 'Server error sending location');
+                }
+            } catch (err) {
+                showError('Network error — check your internet connection');
+            }
+        }
+
+        function onGpsSuccess(pos) {
+            currentLat = pos.coords.latitude;
+            currentLng = pos.coords.longitude;
+            const acc = pos.coords.accuracy;
+
+            updateGpsDisplay(currentLat, currentLng, acc);
+
+            document.getElementById('statusIcon').textContent = '🚛';
+            document.getElementById('statusTitle').textContent = 'Sharing Live Location';
+            document.getElementById('statusSub').textContent = 'Customer can now see your position on the map in real time.';
+        }
+
+        function onGpsError(err) {
+            let msg = 'GPS error.';
+            if (err.code === 1) msg = 'Location permission denied. Please allow location access in your browser settings.';
+            else if (err.code === 2) msg = 'GPS signal not available. Try moving to an open area.';
+            else if (err.code === 3) msg = 'GPS timed out. Make sure location is enabled on your phone.';
+            showError(msg);
+            stopTracking();
+        }
+
+        function startTracking() {
+            if (!navigator.geolocation) {
+                showError('This browser does not support GPS. Please use Chrome or Safari on your phone.');
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    currentLat = pos.coords.latitude;
+                    currentLng = pos.coords.longitude;
+                    updateGpsDisplay(currentLat, currentLng, pos.coords.accuracy);
+                    sendLocation(); // send immediately
+
+                    // Watch for continuous updates
+                    watchId = navigator.geolocation.watchPosition(onGpsSuccess, onGpsError, {
+                        enableHighAccuracy: true,
+                        maximumAge: 10000,
+                        timeout: 15000,
+                    });
+
+                    // Send to server every 20 seconds
+                    sendInterval = setInterval(sendLocation, UPDATE_INTERVAL);
+
+                    // Update UI
+                    isTracking = true;
+                    const btn = document.getElementById('mainBtn');
+                    btn.className = 'start-btn running';
+                    document.getElementById('btnIcon').textContent = '⏹';
+                    document.getElementById('btnLabel').textContent = 'Stop Sharing';
+                    document.getElementById('pulseWrapper').innerHTML =
+                        '<span class="pulse-ring"></span><span id="btnIcon">⏹</span>';
+                    document.getElementById('counterBox').classList.remove('hidden');
+                    document.getElementById('deliveredBtn').classList.add('show');
+                },
+                onGpsError,
+                { enableHighAccuracy: true, timeout: 15000 }
+            );
+        }
+
+        function stopTracking() {
+            if (watchId !== null) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+            }
+            if (sendInterval !== null) {
+                clearInterval(sendInterval);
+                sendInterval = null;
+            }
+            isTracking = false;
+
+            const btn = document.getElementById('mainBtn');
+            btn.className = 'start-btn idle';
+            btn.innerHTML = '<span>▶</span><span>Resume Sharing</span>';
+
+            document.getElementById('statusIcon').textContent = '⏸';
+            document.getElementById('statusTitle').textContent = 'Location Sharing Paused';
+            document.getElementById('statusSub').textContent = 'Press Resume to continue sharing your location.';
+        }
+
+        function toggleTracking() {
+            if (isTracking) {
+                stopTracking();
+            } else {
+                startTracking();
+            }
+        }
+
+        async function markDelivered() {
+            if (!confirm('Mark this delivery as completed?')) return;
+
+            let csrf = getCsrfToken();
+            try {
+                const resp = await fetch(GPS_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf },
+                    body: JSON.stringify({ lat: currentLat, lng: currentLng, status: 'delivered' }),
+                });
+
+                // Stop tracking
+                stopTracking();
+
+                document.getElementById('statusIcon').textContent = '🎉';
+                document.getElementById('statusTitle').textContent = 'Delivery Completed!';
+                document.getElementById('statusSub').textContent =
+                    'Great job! This delivery has been marked as completed. The customer has been notified.';
+                document.getElementById('mainBtn').disabled = true;
+                document.getElementById('mainBtn').style.display = 'none';
+                document.getElementById('deliveredBtn').style.display = 'none';
+
+            } catch (err) {
+                showError('Could not mark as delivered. Try again.');
+            }
+        }
+
+        // Auto-start location watching when page loads (just watch, not send)
+        window.addEventListener('load', () => {
+            if (navigator.geolocation) {
+                // Prime the GPS silently
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        currentLat = pos.coords.latitude;
+                        currentLng = pos.coords.longitude;
+                        updateGpsDisplay(currentLat, currentLng, pos.coords.accuracy);
+                    },
+                    () => { }, // silent fail on load
+                    { enableHighAccuracy: true, timeout: 10000 }
+                );
+            }
+        });
+
+        // Keep screen alive (prevent phone from sleeping)
+        let wakeLock = null;
+        async function requestWakeLock() {
+            if ('wakeLock' in navigator) {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                } catch (err) { }
+            }
+        }
+        requestWakeLock();
+    </script>
+
+</body>
+
+</html>
